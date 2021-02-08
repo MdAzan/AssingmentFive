@@ -1,18 +1,15 @@
 const searchFoodForm = document.getElementById('searchFoodForm');
 const foodName = document.getElementById('foodName');
 const foodArea = document.getElementById('foodArea');
-let showPhoto = document.querySelector('.showPhoto img');
-let showName = document.querySelector('.showName');
-let showTitle = document.querySelector('.showTitle');
-let showList = document.getElementById('showList');
 
 
 
-// creat food container
-// div#foodArea > child > (photoBox>img + 
-function foodContainer(data){
+
+// showing foods after search by a single charecter
+function showAllFoods(data) {
+    // foodCollections is an array which is containing all food details in particular index
     const foodColllections = data.meals;
-    const totalFood = data.meals.length;
+    // this forEach loop works one time for every single & giving food's Information
     foodColllections.forEach((elements => {
         // Getting foodNames and foodPhotos
         const foodPhoto = elements.strMealThumb;
@@ -25,36 +22,30 @@ function foodContainer(data){
         photosParent.className = 'childsPhoto';
         // inserting image into child div
         photosParent.innerHTML = `<img alt='Photo is not found' src=${foodPhoto}>`;
-        // creating title for foodName
-        const title = document.createElement('div');
-        title.innerHTML = `<p class='text-center my-3 titles'>${foodName} foods item</p>`;
-        // Ingradients
+        const pTagForFoodName = document.createElement('p');
+        pTagForFoodName.className = "text-center mt-2 dishName";
+        pTagForFoodName.innerHTML = foodName;
+        // Create ul for storing strIngredients
         let ul = document.createElement('ul');
         ul.className = "d-none";
-        let i1 = elements.strIngredient1;
-        let i2 = elements.strIngredient2;
-        let i3 = elements.strIngredient3;
-        let i4 = elements.strIngredient4;
-        let i5 = elements.strIngredient5;
-        let i6 = elements.strIngredient6;
-        let i7 = elements.strIngredient7;
-        let i8 = elements.strIngredient8;
-        let i9 = elements.strIngredient9;
-        let i10 = elements.strIngredient10;
-
-        listElements = [i1,i2,i3,i4,i5,i6,i7,i8,i9,i10]
-        for(i=0; i<listElements.length; i++){
-            let li = document.createElement('li');
-            li.innerHTML = listElements[i];
-            ul.appendChild(li);
-            if(listElements[i] == "" || listElements[i] == null || listElements[i] == undefined){
-                li.innerHTML = "will be updated very soon";
+        // get ingredients dinamically with for loop
+        for (k = 0; k < 10; k++) {
+            let b = k + 1;
+            strIngredient = elements[`strIngredient${b}`];
+            // create li
+            const li = document.createElement('li');
+            if (strIngredient === '' || strIngredient == null || strIngredient == undefined) {
+                li.innerHTML = "This Ingredient name is empty";
+            } else {
+                li.innerHTML = strIngredient;
             }
+            ul.appendChild(li);
         }
         // insert elements to their parent div
         child.appendChild(photosParent);
-        child.appendChild(title);
+        child.appendChild(pTagForFoodName);
         child.appendChild(ul);
+        // finally storing informations of a single food
         foodArea.appendChild(child);
     }));
 }
@@ -62,102 +53,180 @@ function foodContainer(data){
 
 
 // validation
-function validation(data){
-    if(foodArea.children[0]){
+function validation(data) {
+    if (foodArea.children[0]) {
         let childrens = document.querySelectorAll('.child');
-        for(var i = 0; i< childrens.length; i++){
-         childrens[i].remove();
+        for (var i = 0; i < childrens.length; i++) {
+            childrens[i].remove();
         }
-        foodContainer(data);  
-    }else{
-        foodContainer(data);
+        showAllFoods(data);
+    } else {
+        showAllFoods(data);
     }
 }
 
 
 
-// search food and show food in container
-function searchFoods(){
-    searchFoodForm.addEventListener('submit', (e) => {
-        if(foodName.value == ""){
-            foodName.style.border = "2px solid red";
-            foodName.setAttribute('placeholder', 'Please insert a food name!');
-            foodName.style.color = "red";
+// show warnings
+function showWarnings(color, msg) {
+    foodName.style.border = "2px solid red";
+    foodName.setAttribute('placeholder', `${msg}`);
+    foodName.style.color = `${color}`;
+}
+
+// show alert
+function showAlert(alert){
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alertDiv';
+    alertDiv.innerHTML = `<p>${alert}</p>`;
+    document.body.appendChild(alertDiv);
+    setTimeout(()=>{
+        document.querySelector('.alertDiv').remove();
+    },1500)
+}
+
+
+// keyup search validation
+foodName.addEventListener('keyup', (e) => {
+    let ingredient3 = document.getElementById('ingredients');
+    foodArea.classList.add('d-none');
+    ingredient3.classList.add('d-none');
+})
+
+function freeContainer(){
+    if(foodArea.classList.contains('d-none')){
+        foodArea.classList.remove('d-none');
+    }
+}
+
+
+function freeIngredient(){
+    let ingredient3 = document.getElementById('ingredients');
+    if(ingredient3.classList.contains('d-none')){
+        ingredient3.classList.remove('d-none');
+    }
+}
+
+
+
+
+// add Ingredients
+function addIngredients(ul) {
+    let showList = document.getElementById('showList');
+    let listParent = ul;
+    for (let i = 0; i < 10; i++) {
+        let lis = document.createElement('li');
+        lis.className = "listi";
+        if (ul.children[i].innerText == "This Ingredient name is empty") {
+            lis.innerText = "This Ingredient name is empty";
+            lis.style.color = "red";
+        }else{
+            lis.innerHTML = listParent.children[i].innerHTML;
         }
-        else
-        {
-            const firstLetterOfFoods = foodName.value;
-            if(firstLetterOfFoods.length == 1){
-                if(showList.parentElement){
-                    showList.parentElement.classList.add('d-none');
-                }
-                // fetch data
-                const url = `https://www.themealdb.com/api/json/v1/1/search.php?f=${firstLetterOfFoods}`;
-                fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                // if data is not null, show food items else return error
-                if(data.meals){
-                        new Promise((resolve, reject) => {
-                            validation(data);
-                            resolve("successfully created")
-                        })
-                        .then(() => {
-                            //let childs = document.querySelectorAll('.child');
-                            foodArea.addEventListener('click', (e) => {
-                                let father = e.target.parentElement.parentElement;
-                                if(father.classList.contains('child')){
-                                    if(showList.parentElement.classList.contains('d-none')){
-                                        showList.parentElement.classList.remove('d-none');
-                                    }
+        showList.appendChild(lis);
+    }
+}
+// remove existing gredients
+function remAddIngredients(ul) {
+    if (showList.children[0]) {
+        let listi = document.querySelectorAll('.listi');
+        for (let i = 0; i < listi.length; i++) {
+            listi[i].remove();
+        }
+        addIngredients(ul);
+    }else{
+        addIngredients(ul);
+    }
+}
+// show food functions
+function showSingleFood(imgSrc, name, ul) {
+    let showPhoto = document.querySelector('.showPhoto img');
+    showPhoto.setAttribute('src', `${imgSrc}`);
+    showPhoto.style.height = "350px";
+    document.querySelector('.showName').innerHTML = `${name}`;
+    document.querySelector('.showTitle').innerHTML = "Ingredeints";
+    remAddIngredients(ul);
+}
 
-                                    const imgSrc = e.target.getAttribute('src');
-                                    showPhoto.setAttribute("src", `${imgSrc}`);
-                                    showPhoto.style.height = "350px";
-                                    showName.innerHTML = father.children[1].children[0].innerText;
-                                    showName.classList.add('my-4')
-                                    showTitle.innerText = "Ingradients";
-                                    // show ingdredients
 
-                                    
-                                    if(showList.children[0]){
-                                        let listi = document.querySelectorAll('.listi');
-                                        for(let i = 0; i < listi.length; i++){
-                                            listi[i].remove();
-                                        }
-                                    }
+// described food
+function describedFood() { 
+    foodArea.addEventListener('click', (e) => {
 
-                                    for(let i = 0; i < 10; i++){
-                                        if(father.children[2].children[i]){
-                                            let li = father.children[2].children[i];
-                                            let lis = document.createElement('li');
-                                            lis.className = "listi";
-                                            lis.innerHTML = li.innerText;
-                                            showList.appendChild(lis); 
-                                        }
-                                    }     
-                                }
-                            })
-                        })
-                }
-                })
-            }else{
-                foodName.style.borderColor = "red";
-                foodName.value = 'type a single letter like a, b, c....., z ! Just use one letter of 26';
-                foodName.style.color = "red";
-            }
+        if (e.target.classList.contains('child')) {
+            let imgSrc = e.target.children[0].children[0].getAttribute('src');
+            let name = e.target.children[1].innerText;
+            let ul = e.target.children[2];
+            showSingleFood(imgSrc, name, ul);
+        }
+
+        if (e.target.parentElement.parentElement.classList.contains('child')) {
+            let imgSrc = e.target.getAttribute('src');
+            let name = e.target.parentElement.parentElement.children[1].innerText;
+            let ul = e.target.parentElement.parentElement.children[2];
+            showSingleFood(imgSrc, name, ul);
+        }
+
+        if (e.target.parentElement.classList.contains('child')) {
+            let imgSrc = e.target.parentElement.children[0].children[0].getAttribute('src');
+            let name = e.target.innerText;
+            let ul = e.target.parentElement.children[2];
+            showSingleFood(imgSrc, name, ul);
+        }
+
+        freeIngredient();
+
+    })
+}
+
+
+
+
+
+// fetch data is the part of else in next function
+async function fetchData() {
+    const url = `https://www.themealdb.com/api/json/v1/1/search.php?f=${foodName.value}`;
+    const Data = await fetch(url);
+    const response = await Data.json();
+    const data = await response;
+    if (data) {
+        validation(data);
+        describedFood();
+        freeContainer();
+    }
+
+}
+
+
+
+
+
+// search food and show food in container
+function searchFoods() {
+    searchFoodForm.addEventListener('submit', (e) => {
+        const foodNameLength = foodName.value.length;
+        if (foodName.value == "") {
+            showAlert("Please Insert a single charecter bewtween A-Z");
+        }
+        else if (foodNameLength > 1) {
+            showAlert('You can only insert a single Charecter like a or b or z');
+        } else {
+            // we are the part of else
+            fetchData();
+            
         }
         e.preventDefault();
     })
-}searchFoods();
+} searchFoods();
 
 
 
-// another warnings
-foodName.addEventListener('keyup', (e) => {
-    if(foodName.value != ""){
-        foodName.style.borderColor = "green";
-        foodName.setAttribute('placeholder', 'type a single letter like a, b, c....., z!');
-        foodName.style.color = "green";
-    }
-})
+
+
+
+
+
+
+
+
+

@@ -35,6 +35,7 @@
     margin: 9px 15px;
     background-color: rgba(128, 128, 128, 0.103);
     border-radius: 5px;
+    cursor: pointer;
 }
 
 #foodArea .child .childsPhoto{
@@ -56,4 +57,33 @@
 .showPhoto{
     border-radius: 10px;
     overflow: hidden;
+}
+
+#showList{
+    list-style: square;
+}
+
+.showName{
+    color: green;
+    margin-top: 20px;
+    font-weight: 700;
+}
+
+.showTitle{
+    color: orange;
+    font-size: 20px;
+}
+
+.alertDiv{
+    width: 400px;
+    padding: 20px;
+    color: red;
+    text-align: center;
+    background: rgb(8, 2, 2);
+    border-radius: 20px;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    margin-left: -200px;
+    font-size: 30px;
 }
